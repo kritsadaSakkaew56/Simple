@@ -173,6 +173,7 @@ namespace PagingControl
         {
             int index = gvuser.SelectedRow.RowIndex;
             string AgreementNo = gvuser.SelectedRow.Cells[1].Text;
+            ViewState["AgreementNo"] = AgreementNo;
             this.BindDataDetialByOrder(AgreementNo);
 
 
@@ -180,7 +181,13 @@ namespace PagingControl
 
         protected void gvdata_RowDataBound(object sender, GridViewRowEventArgs e)
         {
-
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                e.Row.Attributes.Add("onmouseover", "MouseEvents(this, event)");
+                e.Row.Attributes.Add("onmouseout", "MouseEvents(this, event)");
+                e.Row.Attributes["onclick"] = Page.ClientScript.GetPostBackClientHyperlink(gvdata, "Select$" + e.Row.RowIndex);
+                e.Row.Attributes["style"] = "cursor:pointer";
+            }
         }
 
         protected void gvdata_SelectedIndexChanged(object sender, EventArgs e)
@@ -190,6 +197,44 @@ namespace PagingControl
 
         protected void gvdata_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
+            gvdata.PageIndex = e.NewPageIndex;
+            string AgreementNo = ViewState["AgreementNo"].ToString();
+            BindDataDetialByOrder(AgreementNo);
+            if (ViewState["CheckBoxArray"] != null)
+            {
+                ArrayList CheckBoxArray = (ArrayList)ViewState["CheckBoxArray"];
+                string checkAllIndex = "chkAll-" + gvdata.PageIndex;
+
+                if (CheckBoxArray.IndexOf(checkAllIndex) != -1)
+                {
+                    CheckBox chkAll = (CheckBox)gvuser.HeaderRow.Cells[0].FindControl("chkSelectAll");
+                    chkAll.Checked = true;
+                }
+                for (int i = 0; i < gvuser.Rows.Count; i++)
+                {
+
+                    if (gvdata.Rows[i].RowType == DataControlRowType.DataRow)
+                    {
+                        if (CheckBoxArray.IndexOf(checkAllIndex) != -1)
+                        {
+                            CheckBox chk = (CheckBox)gvuser.Rows[i].Cells[0].FindControl("chkSelect");
+                            chk.Checked = true;
+                            gvdata.Rows[i].Attributes.Add("style", "background-color:aqua");
+                        }
+                        else
+                        {
+                            int CheckBoxIndex = gvuser.PageSize * (gvuser.PageIndex) + (i + 1);
+                            if (CheckBoxArray.IndexOf(CheckBoxIndex) != -1)
+                            {
+                                CheckBox chk = (CheckBox)gvuser.Rows[i].Cells[0].FindControl("chkSelect");
+                                chk.Checked = true;
+                                gvdata.Rows[i].Attributes.Add("style", "background-color:#C2D69B");
+                            }
+                        }
+                    }
+                }
+            }
+
 
         }
 

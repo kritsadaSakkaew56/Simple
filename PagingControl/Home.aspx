@@ -211,7 +211,7 @@
                         </asp:GridView>
                     </asp:Panel>
 
-                    <asp:TextBox ID="TextBox1" runat="server" Width="100px"></asp:TextBox>
+                   
 
                 </ContentTemplate>
                     
